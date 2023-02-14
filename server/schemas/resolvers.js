@@ -40,24 +40,25 @@ const resolvers = {
         console.log(err);
       }
     },
-    saveBook: async (parent, args, context) => {
+    saveBook: async (parent, { bookData }, context) => {
       if (context.user) {
-        const updatedUser = await User.findByIdAndUpdate(
+        const updatedUser = await User.findOneAndUpdate(
           { _id: context.user._id },
-          { $addToSet: { savedBooks: args.input } },
-          { new: true, runValidators: true }
-        );
+          { $addToSet: { savedBooks: bookData } },
+          { new: true }
+        ).populate("books");
         return updatedUser;
       }
       throw new AuthenticationError("User not logged in!");
     },
-    removeBook: async (parent, args, context) => {
+    removeBook: async (parent, { bookId }, context) => {
       if (context.user) {
         const updatedUser = await User.findOneAndUpdate(
           {
             _id: context.user._id,
           },
-          { $pull: { savedBooks: { bookId: args.bookId } } }
+          { $pull: { savedBooks: { bookId } } },
+          { new: true }
         );
         return updatedUser;
       }
