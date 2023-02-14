@@ -41,12 +41,14 @@ const resolvers = {
       }
     },
     saveBook: async (parent, { bookData }, context) => {
+      console.log(context.user, bookData);
       if (context.user) {
         const updatedUser = await User.findOneAndUpdate(
           { _id: context.user._id },
           { $addToSet: { savedBooks: bookData } },
           { new: true }
-        ).populate("books");
+        );
+        console.log(updatedUser);
         return updatedUser;
       }
       throw new AuthenticationError("User not logged in!");
